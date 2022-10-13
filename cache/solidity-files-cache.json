@@ -1,0 +1,79 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\NxID\\MEV BOT\\simple-arbitrage\\contracts\\BundleExecutor.sol": {
+      "lastModificationDate": 1665639448303,
+      "contentHash": "e2713dfaa851c6a3ad6f7c56cc604dbb",
+      "sourceName": "contracts/BundleExecutor.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "FlashBotsMultiCall",
+        "IERC20",
+        "IWETH"
+      ]
+    },
+    "C:\\NxID\\MEV BOT\\simple-arbitrage\\contracts\\UniswapFlashQuery.sol": {
+      "lastModificationDate": 1665639583067,
+      "contentHash": "0809e0289eeebb1b9e0194b1ed2f2627",
+      "sourceName": "contracts/UniswapFlashQuery.sol",
+      "solcConfig": {
+        "version": "0.8.17",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.8.17"
+      ],
+      "artifacts": [
+        "IUniswapV2Pair",
+        "UniswapFlashQuery",
+        "UniswapV2Factory"
+      ]
+    }
+  }
+}
