@@ -21,6 +21,13 @@ interface GroupedMarkets {
   allMarketPairs: Array<UniswappyV2EthPair>;
 }
 
+export interface Employee {
+  tokens: string;
+  routers: string;
+  pairs: string;
+  baseAsset: string;
+}
+
 export class UniswappyV2EthPair extends EthMarket {
   static uniswapInterface = new Contract(WETH_ADDRESS, UNISWAP_PAIR_ABI);
   private _tokenBalances: TokenBalances
@@ -45,12 +52,35 @@ export class UniswappyV2EthPair extends EthMarket {
     return []
   }
 
+  static async getUniswappyPools(provider: providers.JsonRpcProvider, factoryAddress: string): Promise<Array<UniswappyV2EthPair>> {
+    const uniswapQuery = new Contract(UNISWAP_LOOKUP_CONTRACT_ADDRESS, UNISWAP_QUERY_ABI, provider);
+    
+    const json = require('./arbitrumaddresses.json');
+    const arbitrumAddresses = JSON.stringify(json);
+    const arbAdresses = JSON.parse(arbitrumAddresses);
+    const marketPairs = new Array<UniswappyV2EthPair>()
+
+    for(const arb in arbAdresses) {
+      const tokenToPair = arbAdresses[arb].address;
+      for(const token in arbAdresses) {
+        const pair = arbAdresses[token].address;
+        const pairAddress = await uniswapQuery.functions.getPairsByPool(factoryAddress, tokenToPair, pair);
+        if(pairAddress[0] != '0x0000000000000000000000000000000000000000' && (pair == WETH_ADDRESS || tokenToPair == WETH_ADDRESS)) { 
+          const uniswappyV2EthPair = new UniswappyV2EthPair(pairAddress[0], [tokenToPair, pair], "");
+          marketPairs.push(uniswappyV2EthPair);
+        }
+      }
+    }
+    return marketPairs
+  }
+
   static async getUniswappyMarkets(provider: providers.JsonRpcProvider, factoryAddress: string): Promise<Array<UniswappyV2EthPair>> {
     const uniswapQuery = new Contract(UNISWAP_LOOKUP_CONTRACT_ADDRESS, UNISWAP_QUERY_ABI, provider);
 
     const marketPairs = new Array<UniswappyV2EthPair>()
     for (let i = 0; i < BATCH_COUNT_LIMIT * UNISWAP_BATCH_SIZE; i += UNISWAP_BATCH_SIZE) {
-      const pairs: Array<Array<string>> = (await uniswapQuery.functions.getPairsByIndexRange(factoryAddress, i, i + UNISWAP_BATCH_SIZE))[0];
+      
+      const pairs: Array<Array<string>> = (await uniswapQuery.functions.getPairsByIndexRange(factoryAddress, i, i + 1000))[0];
       for (let i = 0; i < pairs.length; i++) {
         const pair = pairs[i];
         const marketAddress = pair[2];
@@ -76,12 +106,21 @@ export class UniswappyV2EthPair extends EthMarket {
     return marketPairs
   }
 
-  static async getUniswapMarketsByToken(provider: providers.JsonRpcProvider, factoryAddresses: Array<string>): Promise<GroupedMarkets> {
+  static async getUniswapMarketsByToken(provider: providers.JsonRpcProvider, factoryAddresses: Array<string>, factoryAddresses2: Array<string>): Promise<GroupedMarkets> {
     const allPairs = await Promise.all(
-      _.map(factoryAddresses, factoryAddress => UniswappyV2EthPair.getUniswappyMarkets(provider, factoryAddress))
+      _.map(factoryAddresses, factoryAddress => 
+        UniswappyV2EthPair.getUniswappyMarkets(provider, factoryAddress)
+      )
+    )
+    const allPairs2 = await Promise.all(
+      _.map(factoryAddresses2, factoryAddress => 
+        UniswappyV2EthPair.getUniswappyPools(provider, factoryAddress)
+      )
     )
 
-    const marketsByTokenAll = _.chain(allPairs)
+    const realAllMarketPairs = _.flatten(allPairs.concat(allPairs2))
+
+    const marketsByTokenAll = _.chain(realAllMarketPairs)
       .flatten()
       .groupBy(pair => pair.tokens[0] === WETH_ADDRESS ? pair.tokens[1] : pair.tokens[0])
       .value()
@@ -111,7 +150,7 @@ export class UniswappyV2EthPair extends EthMarket {
     const pairAddresses = allMarketPairs.map(marketPair => marketPair.marketAddress);
     console.log("Updating markets, count:", pairAddresses.length)
     const reserves: Array<Array<BigNumber>> = (await uniswapQuery.functions.getReservesByPairs(pairAddresses))[0];
-    for (let i = 0; i < allMarketPairs.length; i++) {
+    for (let i = 0; i < allMarketPairs.length-1; i++) {
       const marketPair = allMarketPairs[i];
       const reserve = reserves[i]
       marketPair.setReservesViaOrderedBalances([reserve[0], reserve[1]])
@@ -119,6 +158,7 @@ export class UniswappyV2EthPair extends EthMarket {
   }
 
   getBalance(tokenAddress: string): BigNumber {
+    console.log(this._tokenBalances[tokenAddress]);
     const balance = this._tokenBalances[tokenAddress]
     if (balance === undefined) throw new Error("bad token")
     return balance;
@@ -177,7 +217,7 @@ export class UniswappyV2EthPair extends EthMarket {
   }
 
   async sellTokens(tokenIn: string, amountIn: BigNumber, recipient: string): Promise<string> {
-    // function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
+   //function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external lock {
     let amount0Out = BigNumber.from(0)
     let amount1Out = BigNumber.from(0)
     let tokenOut: string;

@@ -3,15 +3,17 @@ pragma solidity 0.8.17;
 
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 interface IUniswapV2Pair {
     function token0() external view returns (address);
     function token1() external view returns (address);
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
 }
 
 abstract contract UniswapV2Factory  {
     mapping(address => mapping(address => address)) public getPair;
     address[] public allPairs;
+    function getPool(address tokenA, address tokenB, uint24 num) external view virtual returns (address);
     function allPairsLength() external view virtual returns (uint);
 }
 
@@ -20,7 +22,11 @@ contract UniswapFlashQuery {
     function getReservesByPairs(IUniswapV2Pair[] calldata _pairs) external view returns (uint256[3][] memory) {
         uint256[3][] memory result = new uint256[3][](_pairs.length);
         for (uint i = 0; i < _pairs.length; i++) {
-            (result[i][0], result[i][1], result[i][2]) = _pairs[i].getReserves();
+            address _token1 = _pairs[i].token0();
+            address _token2 = _pairs[i].token1();
+            result[i][0] = IERC20(_token1).balanceOf(address(_pairs[i]));
+            result[i][1] = IERC20(_token2).balanceOf(address(_pairs[i]));
+            result[i][2] = block.timestamp;
         }
         return result;
     }
@@ -39,6 +45,14 @@ contract UniswapFlashQuery {
             result[i][1] = _uniswapPair.token1();
             result[i][2] = address(_uniswapPair);
         }
+        return result;
+    }
+
+    function getPairsByPool(UniswapV2Factory _uniswapFactory, address _token1, address _token2) external view returns (address)  {
+        address result;
+        IUniswapV2Pair _uniswapPair = IUniswapV2Pair(_uniswapFactory.getPool(_token1, _token2, 500));
+        result = address(_uniswapPair);
+
         return result;
     }
 }

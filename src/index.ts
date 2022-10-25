@@ -3,15 +3,16 @@ import { Contract, providers, Wallet } from "ethers";
 import { BUNDLE_EXECUTOR_ABI } from "./abi";
 import { UniswappyV2EthPair } from "./UniswappyV2EthPair";
 import { FACTORY_ADDRESSES } from "./addresses";
+import { POOL_ADDRESSES } from "./pooladdresses";
 import { Arbitrage } from "./Arbitrage";
 import { get } from "https"
 import { getDefaultRelaySigningKey } from "./utils";
 
 const ETHEREUM_RPC_URL = process.env.ETHEREUM_RPC_URL || "https://arb1.arbitrum.io/rpc"
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "242e75c0d3bb2988208cbf84725a6d95de58f2f4c60254909c4581452718da66"
-const BUNDLE_EXECUTOR_ADDRESS = process.env.BUNDLE_EXECUTOR_ADDRESS || "0x99524283D8e71628b878Eb0C263765FaB051Aa02"
+const BUNDLE_EXECUTOR_ADDRESS = process.env.BUNDLE_EXECUTOR_ADDRESS || "0x7ddBE94c226dB56c6624cd842b0A9CcD95fdb429"
 
-const FLASHBOTS_RELAY_SIGNING_KEY = process.env.FLASHBOTS_RELAY_SIGNING_KEY || "0xd62EB82CF90E7Db21Ac842B695cD643703a1A3fE";
+const FLASHBOTS_RELAY_SIGNING_KEY = process.env.FLASHBOTS_RELAY_SIGNING_KEY || getDefaultRelaySigningKey();
 
 const MINER_REWARD_PERCENTAGE = parseInt(process.env.MINER_REWARD_PERCENTAGE || "80")
 
@@ -52,7 +53,7 @@ async function main() {
     flashbotsProvider,
     new Contract(BUNDLE_EXECUTOR_ADDRESS, BUNDLE_EXECUTOR_ABI, provider) )
 
-  const markets = await UniswappyV2EthPair.getUniswapMarketsByToken(provider, FACTORY_ADDRESSES);
+  const markets = await UniswappyV2EthPair.getUniswapMarketsByToken(provider, FACTORY_ADDRESSES, POOL_ADDRESSES);
   provider.on('block', async (blockNumber) => {
     await UniswappyV2EthPair.updateReserves(provider, markets.allMarketPairs);
     const bestCrossedMarkets = await arbitrage.evaluateMarkets(markets.marketsByToken);
