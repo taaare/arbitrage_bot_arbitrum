@@ -2,7 +2,7 @@ simple-arbitrage
 ================
 This repository contains a simple, mechanical system for discovering, evaluating, rating, and submitting arbitrage opportunities to the Flashbots bundle endpoint. This script is very unlikely to be profitable, as many users have access to it, and it is targeting well-known Ethereum opportunities.
 
-I modified the simple-arbitrage repository in order to allow for use on the Arbitrum network when it was in it's early stages. Due to the simple nature of the arbitrage method, this bot generates very little revenue. This could however, be used as a basis to build more profound algorithms. 
+I modified the simple-arbitrage repository in order to allow for use on the Arbitrum network when it was in it's early stages. Due to the simple nature of the arbitrage method, this bot generates very little revenue. However, this could be used as a basis for a more complex arbitrage bot, given deeper analysis of decentralized exchange markets using more profound risk models, optimal arbitrage, and multi-dex routing, it can be made more profitable. See https://arxiv.org/pdf/1911.03380
 
 Environment Variables
 =====================
