@@ -1,6 +1,9 @@
+#folders
 /.idea
 /node_modules
 /build
 /tsconfig.tsbuildinfo
-/.env
+
+#misc
 .env
+.env.local
