@@ -1,4 +1,4 @@
-simple-arbitrage
+simple-arbitrage-arbitrum
 ================
 This repository contains a simple, mechanical system for discovering, evaluating, rating, and submitting arbitrage opportunities to the Flashbots bundle endpoint. This script is very unlikely to be profitable, as many users have access to it, and it is targeting well-known Ethereum opportunities.
 
