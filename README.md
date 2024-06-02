@@ -4,7 +4,7 @@ This repository contains a simple, mechanical system for discovering, evaluating
 
 I modified the simple-arbitrage repository in order to allow for its use on Arbitrum when the network was in it's early stages. Due to the simple nature of the arbitrage method, this bot generates very little revenue. However, this could be used as a basis for a more complex arbitrage bot. Given deeper analysis of decentralized exchange markets & while using more fleshed-out risk models, optimal arbitrage pathing, and multi-dex routing, it can be made more profitable. See https://arxiv.org/pdf/1911.03380
 
-Yes, I know the private key to the wallet is somewhere in this repo. <3 github repo scrapers
+Yes, I know the private key to the wallet is *somewhere* in this repo. <3 github repo scrapers
 
 Environment Variables
 =====================
