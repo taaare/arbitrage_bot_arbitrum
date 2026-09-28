@@ -4,6 +4,10 @@
 /build
 /tsconfig.tsbuildinfo
 
+#hardhat
+/artifacts
+/cache
+
 #misc
 .env
 .env.local
