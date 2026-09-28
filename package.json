@@ -1,15 +1,15 @@
 {
-  "name": "@flashbots/simple-arbitrage",
+  "name": "simple-arbitrage-arbitrum",
   "version": "0.0.1",
-  "description": "",
+  "description": "Simple WETH arbitrage bot for Uniswap-style markets on Arbitrum",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {
-    "start": "npx ts-node --project tsconfig.json src/index.ts",
-    "test": "npx ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
-    "build": "npx tsc",
+    "start": "ts-node --project tsconfig.json src/index.ts",
+    "test": "ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
+    "build": "tsc",
     "prepare": "npm run build",
-    "lint": "npx eslint src",
+    "lint": "eslint src",
     "compile": "hardhat compile",
     "deploy:flash-query": "hardhat run scripts/deploy-flash-query.js --network arbitrum",
     "deploy:executor": "hardhat run scripts/deploy-bundle-executor.js --network arbitrum"
@@ -39,15 +39,9 @@
     "@flashbots/ethers-provider-bundle": "^0.3.1",
     "@openzeppelin/contracts": "^4.7.3",
     "dotenv": "^16.0.3",
-    "env": "^0.0.2",
-    "flashbots": "^1.0.0",
-    "fs": "^0.0.1-security",
     "hardhat": "^2.12.0",
-    "hardhat-etherscan": "^1.0.1",
     "lodash": "^4.17.21",
-    "node": "^16.13.0",
     "ts-node": "^9.1.0",
-    "typescript": "^4.1.2",
-    "web3": "^1.8.0"
+    "typescript": "^4.1.2"
   }
 }
