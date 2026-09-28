@@ -1,37 +1,34 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-pragma experimental ABIEncoderV2;
-
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IUniswapV2Pair {
     function token0() external view returns (address);
     function token1() external view returns (address);
 }
 
-abstract contract UniswapV2Factory  {
-    mapping(address => mapping(address => address)) public getPair;
-    address[] public allPairs;
-    function getPool(address tokenA, address tokenB, uint24 num) external view virtual returns (address);
-    function allPairsLength() external view virtual returns (uint);
+// Covers both V2 (allPairs) and V3 (getPool) factories
+interface IUniswapFactory {
+    function allPairs(uint256) external view returns (address);
+    function allPairsLength() external view returns (uint256);
+    function getPool(address tokenA, address tokenB, uint24 fee) external view returns (address);
 }
 
 // In order to quickly load up data from Uniswap-like market, this contract allows easy iteration with a single eth_call
 contract UniswapFlashQuery {
-    function getReservesByPairs(IUniswapV2Pair[] calldata _pairs) external view returns (uint256[3][] memory) {
-        uint256[3][] memory result = new uint256[3][](_pairs.length);
+    // Token balances in token0/token1 order; works for V2 pairs and V3 pools
+    function getReservesByPairs(IUniswapV2Pair[] calldata _pairs) external view returns (uint256[2][] memory) {
+        uint256[2][] memory result = new uint256[2][](_pairs.length);
         for (uint i = 0; i < _pairs.length; i++) {
-            address _token1 = _pairs[i].token0();
-            address _token2 = _pairs[i].token1();
-            result[i][0] = IERC20(_token1).balanceOf(address(_pairs[i]));
-            result[i][1] = IERC20(_token2).balanceOf(address(_pairs[i]));
-            result[i][2] = block.timestamp;
+            IUniswapV2Pair _pair = _pairs[i];
+            result[i][0] = IERC20(_pair.token0()).balanceOf(address(_pair));
+            result[i][1] = IERC20(_pair.token1()).balanceOf(address(_pair));
         }
         return result;
     }
 
-    function getPairsByIndexRange(UniswapV2Factory _uniswapFactory, uint256 _start, uint256 _stop) external view returns (address[3][] memory)  {
+    function getPairsByIndexRange(IUniswapFactory _uniswapFactory, uint256 _start, uint256 _stop) external view returns (address[3][] memory)  {
         uint256 _allPairsLength = _uniswapFactory.allPairsLength();
         if (_stop > _allPairsLength) {
             _stop = _allPairsLength;
@@ -48,11 +45,8 @@ contract UniswapFlashQuery {
         return result;
     }
 
-    function getPairsByPool(UniswapV2Factory _uniswapFactory, address _token1, address _token2) external view returns (address)  {
-        address result;
-        IUniswapV2Pair _uniswapPair = IUniswapV2Pair(_uniswapFactory.getPool(_token1, _token2, 500));
-        result = address(_uniswapPair);
-
-        return result;
+    // Uniswap V3 pool for the pair at the 0.05% fee tier
+    function getPairsByPool(IUniswapFactory _uniswapFactory, address _token1, address _token2) external view returns (address) {
+        return _uniswapFactory.getPool(_token1, _token2, 500);
     }
 }

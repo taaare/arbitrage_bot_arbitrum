@@ -1,8 +1,6 @@
 //SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-pragma experimental ABIEncoderV2;
-
 interface IERC20 {
     event Approval(address indexed owner, address indexed spender, uint value);
     event Transfer(address indexed from, address indexed to, uint value);
@@ -29,7 +27,8 @@ interface IWETH is IERC20 {
 contract BundleExecutor {
     address private immutable owner;
     address private immutable executor;
-    IWETH private constant WETH = IWETH(0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2);
+    // Arbitrum One WETH
+    IWETH private constant WETH = IWETH(0x82aF49447D8a07e3bd95BD0d56f35241523fBab1);
 
     modifier onlyExecutor() {
         require(msg.sender == executor);
@@ -53,12 +52,12 @@ contract BundleExecutor {
     }
 
     function uniswapWeth(uint256 _wethAmountToFirstMarket, uint256 _ethAmountToCoinbase, address[] memory _targets, bytes[] memory _payloads) external onlyExecutor payable {
-        require (_targets.length == _payloads.length);
+        require(_targets.length == _payloads.length);
         uint256 _wethBalanceBefore = WETH.balanceOf(address(this));
         WETH.transfer(_targets[0], _wethAmountToFirstMarket);
         for (uint256 i = 0; i < _targets.length; i++) {
-            (bool _success, bytes memory _response) = _targets[i].call(_payloads[i]);
-            require(_success); _response;
+            (bool _success, ) = _targets[i].call(_payloads[i]);
+            require(_success);
         }
 
         uint256 _wethBalanceAfter = WETH.balanceOf(address(this));
