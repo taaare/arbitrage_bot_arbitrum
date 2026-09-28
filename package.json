@@ -9,7 +9,10 @@
     "test": "npx ts-node node_modules/jasmine/bin/jasmine --config=jasmine.json",
     "build": "npx tsc",
     "prepare": "npm run build",
-    "lint": "npx eslint src"
+    "lint": "npx eslint src",
+    "compile": "hardhat compile",
+    "deploy:flash-query": "hardhat run scripts/deploy-flash-query.js --network arbitrum",
+    "deploy:executor": "hardhat run scripts/deploy-bundle-executor.js --network arbitrum"
   },
   "author": "",
   "license": "ISC",

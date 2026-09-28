@@ -6,8 +6,8 @@ module.exports = {
   solidity: "0.8.17",
   networks: {
     arbitrum: {
-      url: process.env.ETHEREUM_RPC_URL,
-      accounts: [process.env.PRIVATE_KEY],
+      url: process.env.ETHEREUM_RPC_URL || "https://arb1.arbitrum.io/rpc",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 42161,
     },
   },
@@ -15,5 +15,5 @@ module.exports = {
     apiKey: {
       arbitrumOne: process.env.ARB_API,
     },
-  }
+  },
 };
